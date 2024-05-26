@@ -85,6 +85,15 @@ def validate_data(**kwargs):
         raise ValueError("Data validation failed.")
     print(df.columns)
     return df.to_dict(orient='records')
+    
+def load_data(**kwargs):
+    ti = kwargs['ti']
+    df_list = ti.xcom_pull(task_ids='validate_data')
+    df = pd.DataFrame(df_list)
+    # Sauvegarder les données nettoyées et validées dans une base de données
+    from sqlalchemy import create_engine
+    engine = create_engine('postgresql://postgres:postgres@localhost/postgres')
+    df.to_sql('cleaned_data', engine, if_exists='replace', index=False)
 
 def train_task(**kwargs):
     ti = kwargs['ti']
@@ -136,6 +145,12 @@ validate_task = PythonOperator(
     provide_context=True,
     dag=dag,
 )
+load_task = PythonOperator(
+    task_id='load_data',
+    python_callable=load_data,
+    provide_context=True,
+    dag=dag,
+)
 
 train_task = PythonOperator(
     task_id='train_task',
@@ -152,4 +167,4 @@ deploy_task = PythonOperator(
 )
 
 # Define task dependencies
-extract_task >> transform_task >> clean_task >> validate_task >> train_task >> deploy_task
+extract_task >> transform_task >> clean_task >> validate_task >>load_task >> train_task >> deploy_task
