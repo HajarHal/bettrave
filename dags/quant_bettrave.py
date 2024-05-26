@@ -103,7 +103,7 @@ def train_task(**kwargs):
     X_test.to_csv('/opt/airflow/trained_models/X_test.csv', index=False)
     ti.xcom_push(key='X_test_filename', value='/opt/airflow/trained_models/X_test.csv')
 
-def deploy_flask_app():
+def deploy_app():
     import subprocess
     # Commande pour lancer l'application Flask comme un processus subprocess
     subprocess.Popen(['python', 'C:/Users/PcPack/hha/dags/app.py'])
@@ -145,8 +145,8 @@ train_task = PythonOperator(
 )
 
 deploy_task = PythonOperator(
-    task_id='deploy_flask_app',
-    python_callable=deploy_flask_app,
+    task_id='deploy_app',
+    python_callable=deploy_app,
     provide_context=True,
     dag=dag,
 )
