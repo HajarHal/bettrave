@@ -114,7 +114,7 @@ def train_task(**kwargs):
 
 def deploy_app():
     import subprocess
-    # Commande pour lancer l'application Flask comme un processus subprocess
+    # Commande pour lancer l'application stramlit comme un processus subprocess
     subprocess.Popen(['python', 'C:/Users/PcPack/hha/dags/app.py'])
 
 
